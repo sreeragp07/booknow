@@ -1,3 +1,4 @@
+import 'package:booknow/models/category.dart';
 import 'package:booknow/models/professionals.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,23 @@ class DataServices {
 
       result = snapshot.docs
           .map((doc) => Professional.fromMap(doc.id, doc.data()))
+          .toList();
+    } catch (e) {
+      debugPrint("Error : $e");
+    }
+
+    return result;
+  }
+
+  Future<List<Category>> fetchCategories() async {
+    List<Category> result = [];
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('categories')
+          .get();
+
+      result = snapshot.docs
+          .map((doc) => Category.fromMap(doc.id, doc.data()))
           .toList();
     } catch (e) {
       debugPrint("Error : $e");

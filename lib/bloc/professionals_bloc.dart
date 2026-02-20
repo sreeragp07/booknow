@@ -24,7 +24,7 @@ class ProfessionalsBloc extends Bloc<ProfessionalsEvent, ProfessionalsState> {
       emit(state.copyWith(professionalsList: result));
     } catch (e) {
       debugPrint("Error : $e");
-      emit(state.copyWith(error: "No Data Found"));
+      emit(state.copyWith(error: "Something Went Wrong"));
     }
     emit(state.copyWith(isLoading: false));
   }
