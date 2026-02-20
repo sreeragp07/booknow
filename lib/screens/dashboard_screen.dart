@@ -1,5 +1,6 @@
-import 'package:booknow/screens/login_screen.dart';
-import 'package:booknow/widgets/custom_elevated_button.dart';
+import 'package:booknow/models/category.dart';
+import 'package:booknow/screens/professionals_list_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -11,71 +12,119 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  bool isLoading = false;
-
-  void signout() async {
-    final navigator = Navigator.of(context);
-    final messenger = ScaffoldMessenger.of(context);
-    setState(() {
-      isLoading = true;
-    });
+  Future<List<Category>> fetchCategories() async {
+    List<Category> result = [];
     try {
-      await FirebaseAuth.instance.signOut().then((value) {
-        messenger.showSnackBar(
-          SnackBar(content: Text("Successfully Logged out")),
-        );
-        navigator.pushReplacement(
-          MaterialPageRoute(builder: (_) => LoginScreen()),
-        );
-      });
+      final snapshot = await FirebaseFirestore.instance
+          .collection('categories')
+          .get();
+
+      result = snapshot.docs
+          .map((doc) => Category.fromMap(doc.id, doc.data()))
+          .toList();
     } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text("Failed to Log out")));
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
+      debugPrint("Error : $e");
     }
+
+    return result;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFECFDF5),
-      body: Center(
+      appBar: AppBar(
+        backgroundColor: Color(0xFFECFDF5),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+            },
+          ),
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Hello Buddy!",
-              style: TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.w700,
-                color: Colors.black,
-              ),
+            const Text(
+              "Welcome Back",
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 10),
-            Text(
-              "Welcome to Dashboard",
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w500,
-                color: Colors.brown[900],
-              ),
-            ),
-            SizedBox(height: 30),
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                customElevatedButton(
-                  label: "Log Out",
-                  onPressed: () {
-                    signout();
-                  },
-                ),
-                isLoading
-                    ? CircularProgressIndicator(color: Colors.black)
-                    : SizedBox.shrink(),
-              ],
+            const SizedBox(height: 20),
+
+            FutureBuilder(
+              future: fetchCategories(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return const Center(child: Text("Something went wrong"));
+                }
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(child: Text("No categories found"));
+                }
+                final List<Category>? categories = snapshot.data;
+                return Expanded(
+                  child: GridView.builder(
+                    itemCount: categories?.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                        ),
+                    itemBuilder: (context, index) {
+                      final category = categories?[index];
+
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProfessionalsListScreen(
+                                categoryId: category?.id ?? '',
+                                categoryName: category?.name ?? '',
+                              ),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFFFFF),
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.shade200,
+                                blurRadius: 5,
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.network(
+                                category?.imageUrl ?? '',
+                                height: 50,
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                category?.name ?? '',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
             ),
           ],
         ),
