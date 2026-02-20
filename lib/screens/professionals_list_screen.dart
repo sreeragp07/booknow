@@ -1,6 +1,7 @@
-import 'package:booknow/models/professionals.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:booknow/bloc/professionals_bloc.dart';
+import 'package:booknow/respository/data_services.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ProfessionalsListScreen extends StatelessWidget {
   final String categoryId;
@@ -12,70 +13,64 @@ class ProfessionalsListScreen extends StatelessWidget {
     required this.categoryName,
   });
 
-  Future<List<Professional>> fetchProfessionals() async {
-    List<Professional> result = [];
-    try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection('professionals')
-          .where('categoryId', isEqualTo: categoryId)
-          .get();
-
-      result = snapshot.docs
-          .map((doc) => Professional.fromMap(doc.id, doc.data()))
-          .toList();
-    } catch (e) {
-      debugPrint("Error : $e");
-    }
-
-    return result;
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFECFDF5),
-      appBar: AppBar(backgroundColor: const Color(0xFFECFDF5) ,title: Text(categoryName)),
-      body: FutureBuilder<List<Professional>>(
-        future: fetchProfessionals(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+    DataServices dataServices = DataServices();
+    return BlocProvider(
+      create: (context) =>
+          ProfessionalsBloc(dataServices)
+            ..add(FetchProfessionalsEvent(categoryId: categoryId)),
+      child: BlocBuilder<ProfessionalsBloc, ProfessionalsState>(
+        builder: (context, state) {
+          return Scaffold(
+            backgroundColor: const Color(0xFFECFDF5),
+            appBar: AppBar(
+              backgroundColor: const Color(0xFFECFDF5),
+              title: Text(categoryName),
+            ),
+            body: BlocBuilder<ProfessionalsBloc, ProfessionalsState>(
+              builder: (context, state) {
+                if (state.isLoading) {
+                  return Center(child: CircularProgressIndicator());
+                }
+                if (state.error != null) {
+                  return Center(child: Text(state.error ?? ''));
+                }
+                if (state.professionalsList.isEmpty) {
+                  return Center(child: Text('No Data Found'));
+                }
+                final professionals = state.professionalsList;
+                return ListView.builder(
+                  itemCount: professionals.length,
+                  itemBuilder: (context, index) {
+                    final pro = professionals[index];
 
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text("No professionals found"));
-          }
-
-          final professionals = snapshot.data!;
-
-          return ListView.builder(
-            itemCount: professionals.length,
-            itemBuilder: (context, index) {
-              final pro = professionals[index];
-
-              return Card(
-                margin: const EdgeInsets.all(12),
-                child: ListTile(
-                  title: Text(pro.name),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Experience: ${pro.experience} years"),
-                      Text("Rating: ⭐ ${pro.rating}"),
-                      Text("Price: ₹${pro.pricePerHour}/hr"),
-                    ],
-                  ),
-                  trailing: Text(
-                    pro.availabilityStatus == true ? "Online" : "Offline",
-                    style: TextStyle(
-                      color: pro.availabilityStatus == true
-                          ? Colors.green
-                          : Colors.red,
-                    ),
-                  ),
-                ),
-              );
-            },
+                    return Card(
+                      margin: const EdgeInsets.all(12),
+                      child: ListTile(
+                        title: Text(pro.name),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Experience: ${pro.experience} years"),
+                            Text("Rating: ⭐ ${pro.rating}"),
+                            Text("Price: ₹${pro.pricePerHour}/hr"),
+                          ],
+                        ),
+                        trailing: Text(
+                          pro.availabilityStatus == true ? "Online" : "Offline",
+                          style: TextStyle(
+                            color: pro.availabilityStatus == true
+                                ? Colors.green
+                                : Colors.red,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
           );
         },
       ),
