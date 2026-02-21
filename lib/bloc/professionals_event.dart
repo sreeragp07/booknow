@@ -13,3 +13,9 @@ class SortProfessionalsListEvent extends ProfessionalsEvent {
 
   SortProfessionalsListEvent({required this.selectedSort});
 }
+
+class FetchReviewsEvent extends ProfessionalsEvent {
+  final String professionalId;
+
+  FetchReviewsEvent({required this.professionalId});
+}

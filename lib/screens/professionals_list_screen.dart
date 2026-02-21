@@ -1,5 +1,6 @@
 import 'package:booknow/bloc/professionals_bloc.dart';
 import 'package:booknow/respository/data_services.dart';
+import 'package:booknow/screens/professional_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -20,7 +21,7 @@ class ProfessionalsListScreen extends StatelessWidget {
       create: (context) =>
           ProfessionalsBloc(dataServices)
             ..add(FetchProfessionalsEvent(categoryId: categoryId)),
-      child: BlocSelector<ProfessionalsBloc, ProfessionalsState,String?>(
+      child: BlocSelector<ProfessionalsBloc, ProfessionalsState, String?>(
         selector: (state) => state.selectedSort,
         builder: (context, value) {
           return Scaffold(
@@ -96,6 +97,15 @@ class ProfessionalsListScreen extends StatelessWidget {
                                 : Colors.red,
                           ),
                         ),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  ProfessionalDetailScreen(professional: pro),
+                            ),
+                          );
+                        },
                       ),
                     );
                   },

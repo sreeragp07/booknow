@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:booknow/models/professionals.dart';
+import 'package:booknow/models/review.dart';
 import 'package:booknow/respository/data_services.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ class ProfessionalsBloc extends Bloc<ProfessionalsEvent, ProfessionalsState> {
     on<ProfessionalsEvent>((event, emit) {});
     on<FetchProfessionalsEvent>(_fetchProfessionals);
     on<SortProfessionalsListEvent>(_sortProfessionals);
+    on<FetchReviewsEvent>(_fetchReviews);
   }
 
   final DataServices _dataServices;
@@ -50,5 +52,19 @@ class ProfessionalsBloc extends Bloc<ProfessionalsEvent, ProfessionalsState> {
         selectedSort: event.selectedSort,
       ),
     );
+  }
+
+  Future<void> _fetchReviews(FetchReviewsEvent event, emit) async {
+    emit(state.copyWith(reviewLoading: true));
+    try {
+      List<Review> result = await _dataServices.fetchReviews(
+        professionalId: event.professionalId,
+      );
+      emit(state.copyWith(reviewsList: result));
+    } catch (e) {
+      debugPrint("Error : $e");
+      emit(state.copyWith(reviewError: "Something Went Wrong"));
+    }
+    emit(state.copyWith(reviewLoading: false));
   }
 }
