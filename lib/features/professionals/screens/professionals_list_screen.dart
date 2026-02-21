@@ -1,4 +1,5 @@
 import 'package:booknow/features/professionals/bloc/professionals_bloc.dart';
+import 'package:booknow/models/professionals.dart';
 import 'package:booknow/respository/data_services.dart';
 import 'package:booknow/features/professionals/screens/professional_details_screen.dart';
 import 'package:flutter/material.dart';
@@ -21,8 +22,8 @@ class ProfessionalsListScreen extends StatelessWidget {
       create: (context) =>
           ProfessionalsBloc(dataServices)
             ..add(FetchProfessionalsEvent(categoryId: categoryId)),
-      child: BlocSelector<ProfessionalsBloc, ProfessionalsState, String?>(
-        selector: (state) => state.selectedSort,
+      child: BlocSelector<ProfessionalsBloc, ProfessionalsState, (String?,List<Professional>)>(
+        selector: (state) => (state.selectedSort, state.professionalsList),
         builder: (context, value) {
           return Scaffold(
             backgroundColor: const Color(0xFFECFDF5),
@@ -30,12 +31,12 @@ class ProfessionalsListScreen extends StatelessWidget {
               backgroundColor: const Color(0xFFECFDF5),
               title: Text(categoryName),
               actions: [
+                value.$2.isEmpty? SizedBox.shrink():
                 DropdownButtonHideUnderline(
                   child: Center(
                     child: DropdownButton<String>(
                       isDense: true,
-                      value: value,
-                      hint: Text("Sort"),
+                      value: value.$1,
                       underline: const SizedBox(),
                       dropdownColor: Colors.white,
                       items: const [
