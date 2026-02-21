@@ -1,5 +1,6 @@
 import 'package:booknow/widgets/custom_elevated_button.dart';
 import 'package:booknow/widgets/custom_text_field.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -22,6 +23,7 @@ class _SignupScreenState extends State<SignupScreen> {
   String? passwordError;
   String? confirmPasswordError;
   bool isLoading = false;
+  String selectedRole = "user";
 
   bool validate() {
     String fullName = nameController.text.trim();
@@ -80,17 +82,42 @@ class _SignupScreenState extends State<SignupScreen> {
       setState(() {
         isLoading = true;
       });
-      await FirebaseAuth.instance
+      final userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(
             email: emailController.text.trim(),
             password: passwordController.text.trim(),
-          )
-          .then((value) {
-            messenger.showSnackBar(
-              SnackBar(content: Text("Successfully registered")),
-            );
-            navigator.pop();
-          });
+          );
+
+      final user = userCredential.user;
+
+      /// Store user details in users collection
+      await FirebaseFirestore.instance.collection('users').doc(user!.uid).set({
+        'name': nameController.text.trim(),
+        'email': emailController.text.trim(),
+        'role': selectedRole,
+      });
+
+      /// If user is professional → create professional document
+      if (selectedRole == "professional") {
+        await FirebaseFirestore.instance
+            .collection('professionals')
+            .doc(user.uid)
+            .set({
+              'name': nameController.text.trim(),
+              'experience': 0,
+              'rating': 0,
+              'pricePerHour': 0,
+              'availabilityStatus': false,
+              'categoryId': '',
+              'categoryName': '',
+            });
+      }
+
+      messenger.showSnackBar(
+        const SnackBar(content: Text("Successfully registered")),
+      );
+
+      navigator.pop();
     } catch (e) {
       messenger.showSnackBar(SnackBar(content: Text("Failed to register")));
     } finally {
@@ -149,6 +176,67 @@ class _SignupScreenState extends State<SignupScreen> {
                   controller: confirmPasswordController,
                   hintText: "Confirm Password",
                   errorMessage: confirmPasswordError,
+                ),
+                SizedBox(height: 20),
+
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Register As",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 17,
+                      ),
+                    ),
+
+                    Column(
+                      children: [
+                        SizedBox(height: 5),
+                        RadioListTile<String>(
+                          dense: true,
+                          visualDensity: VisualDensity.compact,
+
+                          contentPadding: EdgeInsets.symmetric(horizontal: 0),
+                          title: const Text(
+                            "User",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 16,
+                            ),
+                          ),
+                          value: "user",
+                          groupValue: selectedRole,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedRole = value!;
+                            });
+                          },
+                        ),
+
+                        RadioListTile<String>(
+                          dense: true,
+                          visualDensity: VisualDensity.compact,
+
+                          contentPadding: EdgeInsets.symmetric(horizontal: 0),
+                          title: const Text(
+                            "Professional",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 16,
+                            ),
+                          ),
+                          value: "professional",
+                          groupValue: selectedRole,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedRole = value!;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             ),

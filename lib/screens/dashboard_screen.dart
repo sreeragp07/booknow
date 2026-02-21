@@ -1,5 +1,6 @@
 import 'package:booknow/bloc/bloc/category_bloc.dart';
 import 'package:booknow/respository/data_services.dart';
+import 'package:booknow/screens/login_screen.dart';
 import 'package:booknow/screens/professionals_list_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               icon: const Icon(Icons.logout),
               onPressed: () async {
                 await FirebaseAuth.instance.signOut();
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => LoginScreen()),
+                  (route) => false,
+                );
               },
             ),
           ],
@@ -93,10 +99,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Image.network(
-                                  category.imageUrl,
-                                  height: 50,
-                                ),
+                                Image.network(category.imageUrl, height: 50),
                                 const SizedBox(height: 10),
                                 Text(
                                   category.name,

@@ -22,7 +22,7 @@ class ProfessionalDetailScreen extends StatelessWidget {
         backgroundColor: const Color(0xFFECFDF5),
         appBar: AppBar(
           backgroundColor: const Color(0xFFECFDF5),
-          title: Text(professional.name),
+          title: Text("Details"),
         ),
         body: Padding(
           padding: const EdgeInsets.all(16),

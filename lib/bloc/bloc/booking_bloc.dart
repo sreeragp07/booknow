@@ -25,8 +25,15 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     );
     try {
       if (user != null) {
+        final userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+
+        final userName = userDoc.data()?['name'] ?? "Unknown User";
         await FirebaseFirestore.instance.collection('appointments').add({
           'userId': user.uid,
+          'userName': userName,
           'professionalId': event.professionalId,
           'dateAndTime': bookingDateTime,
           'status': 'Pending',

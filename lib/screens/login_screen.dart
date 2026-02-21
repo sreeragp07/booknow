@@ -1,7 +1,9 @@
 import 'package:booknow/screens/dashboard_screen.dart';
+import 'package:booknow/screens/professional_dashboard_screen.dart';
 import 'package:booknow/screens/signup_screen.dart';
 import 'package:booknow/widgets/custom_elevated_button.dart';
 import 'package:booknow/widgets/custom_text_field.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -28,19 +30,36 @@ class _LoginScreenState extends State<LoginScreen> {
       isLoading = true;
     });
     try {
-      await FirebaseAuth.instance
+      final userCredential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(
             email: emailController.text.trim(),
             password: passwordController.text.trim(),
-          )
-          .then((value) {
-            messenger.showSnackBar(
-              SnackBar(content: Text("Successfully Logged In")),
-            );
-            navigator.pushReplacement(
-              MaterialPageRoute(builder: (_) => DashboardScreen()),
-            );
-          });
+          );
+
+      final user = userCredential.user;
+
+      /// Get role from Firestore
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user!.uid)
+          .get();
+
+      final role = userDoc.data()?['role'];
+
+      messenger.showSnackBar(
+        const SnackBar(content: Text("Successfully Logged In")),
+      );
+
+      /// Navigate based on role
+      if (role == "professional") {
+        navigator.pushReplacement(
+          MaterialPageRoute(builder: (_) => ProfessionalDashboard()),
+        );
+      } else {
+        navigator.pushReplacement(
+          MaterialPageRoute(builder: (_) => DashboardScreen()),
+        );
+      }
     } on FirebaseAuthException catch (e) {
       debugPrint("------------$e------------");
       if (e.code == "invalid-credential") {
