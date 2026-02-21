@@ -1,6 +1,6 @@
-import 'package:booknow/bloc/professionals_bloc.dart';
+import 'package:booknow/features/professionals/bloc/professionals_bloc.dart';
 import 'package:booknow/respository/data_services.dart';
-import 'package:booknow/screens/professional_details_screen.dart';
+import 'package:booknow/features/professionals/screens/professional_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -30,32 +30,37 @@ class ProfessionalsListScreen extends StatelessWidget {
               backgroundColor: const Color(0xFFECFDF5),
               title: Text(categoryName),
               actions: [
-                DropdownButton<String>(
-                  value: value,
-                  hint: Text("Sort"),
-                  underline: const SizedBox(),
-                  dropdownColor: Colors.white,
-                  items: const [
-                    DropdownMenuItem(
-                      value: "rating",
-                      child: Text("Sort by Rating"),
+                DropdownButtonHideUnderline(
+                  child: Center(
+                    child: DropdownButton<String>(
+                      isDense: true,
+                      value: value,
+                      hint: Text("Sort"),
+                      underline: const SizedBox(),
+                      dropdownColor: Colors.white,
+                      items: const [
+                        DropdownMenuItem(
+                          value: "rating",
+                          child: Text("Sort by Rating"),
+                        ),
+                        DropdownMenuItem(
+                          value: "price",
+                          child: Text("Sort by Price"),
+                        ),
+                      ],
+                      selectedItemBuilder: (context) {
+                        return [
+                          const Text("Sort by Rating"),
+                          const Text("Sort by Price"),
+                        ];
+                      },
+                      onChanged: (value) {
+                        context.read<ProfessionalsBloc>().add(
+                          SortProfessionalsListEvent(selectedSort: value!),
+                        );
+                      },
                     ),
-                    DropdownMenuItem(
-                      value: "price",
-                      child: Text("Sort by Price"),
-                    ),
-                  ],
-                  selectedItemBuilder: (context) {
-                    return [
-                      const Text("Sort by Rating"),
-                      const Text("Sort by Price"),
-                    ];
-                  },
-                  onChanged: (value) {
-                    context.read<ProfessionalsBloc>().add(
-                      SortProfessionalsListEvent(selectedSort: value!),
-                    );
-                  },
+                  ),
                 ),
                 const SizedBox(width: 10),
               ],

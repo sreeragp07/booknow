@@ -1,7 +1,7 @@
-import 'package:booknow/bloc/bloc/category_bloc.dart';
+import 'package:booknow/features/dashboard/bloc/category_bloc.dart';
 import 'package:booknow/respository/data_services.dart';
-import 'package:booknow/screens/login_screen.dart';
-import 'package:booknow/screens/professionals_list_screen.dart';
+import 'package:booknow/features/auth/screens/login_screen.dart';
+import 'package:booknow/features/professionals/screens/professionals_list_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

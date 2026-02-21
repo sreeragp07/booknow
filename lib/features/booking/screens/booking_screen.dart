@@ -1,4 +1,4 @@
-import 'package:booknow/bloc/bloc/booking_bloc.dart';
+import 'package:booknow/features/booking/bloc/booking_bloc.dart';
 import 'package:booknow/widgets/custom_elevated_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

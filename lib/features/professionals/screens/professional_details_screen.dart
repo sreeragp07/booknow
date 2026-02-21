@@ -1,7 +1,7 @@
-import 'package:booknow/bloc/professionals_bloc.dart';
+import 'package:booknow/features/professionals/bloc/professionals_bloc.dart';
 import 'package:booknow/models/professionals.dart';
 import 'package:booknow/respository/data_services.dart';
-import 'package:booknow/screens/booking_screen.dart';
+import 'package:booknow/features/booking/screens/booking_screen.dart';
 import 'package:booknow/widgets/custom_elevated_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

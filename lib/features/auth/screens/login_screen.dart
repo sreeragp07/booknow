@@ -1,6 +1,6 @@
-import 'package:booknow/screens/dashboard_screen.dart';
-import 'package:booknow/screens/professional_dashboard_screen.dart';
-import 'package:booknow/screens/signup_screen.dart';
+import 'package:booknow/features/dashboard/screens/dashboard_screen.dart';
+import 'package:booknow/features/dashboard/screens/professional_dashboard_screen.dart';
+import 'package:booknow/features/auth/screens/signup_screen.dart';
 import 'package:booknow/widgets/custom_elevated_button.dart';
 import 'package:booknow/widgets/custom_text_field.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
