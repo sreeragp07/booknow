@@ -11,6 +11,7 @@ class ProfessionalsBloc extends Bloc<ProfessionalsEvent, ProfessionalsState> {
   ProfessionalsBloc(this._dataServices) : super(ProfessionalsState()) {
     on<ProfessionalsEvent>((event, emit) {});
     on<FetchProfessionalsEvent>(_fetchProfessionals);
+    on<SortProfessionalsListEvent>(_sortProfessionals);
   }
 
   final DataServices _dataServices;
@@ -27,5 +28,27 @@ class ProfessionalsBloc extends Bloc<ProfessionalsEvent, ProfessionalsState> {
       emit(state.copyWith(error: "Something Went Wrong"));
     }
     emit(state.copyWith(isLoading: false));
+  }
+
+  Future<void> _sortProfessionals(
+    SortProfessionalsListEvent event,
+    emit,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+
+    final List<Professional> list = List.from(state.professionalsList);
+    if (event.selectedSort == 'rating') {
+      list.sort((a, b) => b.rating.compareTo(a.rating));
+    } else {
+      list.sort((a, b) => a.pricePerHour.compareTo(b.pricePerHour));
+    }
+
+    emit(
+      state.copyWith(
+        professionalsList: list,
+        isLoading: false,
+        selectedSort: event.selectedSort,
+      ),
+    );
   }
 }

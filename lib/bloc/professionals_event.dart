@@ -9,7 +9,7 @@ class FetchProfessionalsEvent extends ProfessionalsEvent {
 }
 
 class SortProfessionalsListEvent extends ProfessionalsEvent {
-  final String option;
+  final String selectedSort;
 
-  SortProfessionalsListEvent({required this.option});
+  SortProfessionalsListEvent({required this.selectedSort});
 }

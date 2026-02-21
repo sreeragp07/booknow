@@ -20,13 +20,44 @@ class ProfessionalsListScreen extends StatelessWidget {
       create: (context) =>
           ProfessionalsBloc(dataServices)
             ..add(FetchProfessionalsEvent(categoryId: categoryId)),
-      child: BlocBuilder<ProfessionalsBloc, ProfessionalsState>(
-        builder: (context, state) {
+      child: BlocSelector<ProfessionalsBloc, ProfessionalsState,String?>(
+        selector: (state) => state.selectedSort,
+        builder: (context, value) {
           return Scaffold(
             backgroundColor: const Color(0xFFECFDF5),
             appBar: AppBar(
               backgroundColor: const Color(0xFFECFDF5),
               title: Text(categoryName),
+              actions: [
+                DropdownButton<String>(
+                  value: value,
+                  hint: Text("Sort"),
+                  underline: const SizedBox(),
+                  dropdownColor: Colors.white,
+                  items: const [
+                    DropdownMenuItem(
+                      value: "rating",
+                      child: Text("Sort by Rating"),
+                    ),
+                    DropdownMenuItem(
+                      value: "price",
+                      child: Text("Sort by Price"),
+                    ),
+                  ],
+                  selectedItemBuilder: (context) {
+                    return [
+                      const Text("Sort by Rating"),
+                      const Text("Sort by Price"),
+                    ];
+                  },
+                  onChanged: (value) {
+                    context.read<ProfessionalsBloc>().add(
+                      SortProfessionalsListEvent(selectedSort: value!),
+                    );
+                  },
+                ),
+                const SizedBox(width: 10),
+              ],
             ),
             body: BlocBuilder<ProfessionalsBloc, ProfessionalsState>(
               builder: (context, state) {

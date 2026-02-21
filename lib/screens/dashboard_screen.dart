@@ -65,7 +65,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             mainAxisSpacing: 12,
                           ),
                       itemBuilder: (context, index) {
-                        final category = categories?[index];
+                        final category = categories[index];
 
                         return GestureDetector(
                           onTap: () {
@@ -73,8 +73,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => ProfessionalsListScreen(
-                                  categoryId: category?.id ?? '',
-                                  categoryName: category?.name ?? '',
+                                  categoryId: category.id,
+                                  categoryName: category.name,
                                 ),
                               ),
                             );
@@ -94,12 +94,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Image.network(
-                                  category?.imageUrl ?? '',
+                                  category.imageUrl,
                                   height: 50,
                                 ),
                                 const SizedBox(height: 10),
                                 Text(
-                                  category?.name ?? '',
+                                  category.name,
                                   style: const TextStyle(
                                     fontWeight: FontWeight.w600,
                                   ),
